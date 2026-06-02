@@ -1,14 +1,21 @@
 {
   "name": "turborepo",
   "version": "1.0.0",
+  "author": "clay.zenx@gmail.com",
   "description": "turborepo templates for your next future projects",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "clay.zenx@gmail.com",
   "packageManager": "pnpm@11.5.1",
+  "lint-staged": {
+    "*.{js,ts,vue,css,md,json}": "prettier --write",
+    "*.{js,ts,vue}": "eslint --fix"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "turbo": "^2.9.16"
   }
 }
