@@ -1,0 +1,32 @@
+{
+  "name": "@pkg/shared",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "test": "vitest run",
+    "lint": "eslint . --fix --cache"
+  },
+  "devDependencies": {
+    "@tooling/typescript": "workspace:*",
+    "@tooling/eslint": "workspace:*",
+    "tsup": "^8.5.1",
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.8"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ]
+}

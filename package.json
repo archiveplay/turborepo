@@ -6,8 +6,7 @@
   "description": "turborepo templates for your next future projects",
   "packageManager": "pnpm@11.5.1",
   "lint-staged": {
-    "*.{js,ts,vue,css,md,json}": "prettier --write",
-    "*.{js,ts,vue}": "eslint --fix"
+    "*.{js,ts,vue,css,md,json}": "prettier --write"
   },
   "scripts": {
     "build": "turbo build",
