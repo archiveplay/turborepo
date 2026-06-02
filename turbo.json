@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
 
-  "globalEnv": ["PORT"],
+  "globalEnv": ["PORT", "DATABASE_URL"],
 
   "tasks": {
     "build": {
@@ -24,6 +24,16 @@
       "outputs": []
     },
 
-    "check": {}
+    "db:generate": {
+      "cache": false
+    },
+
+    "db:migrate": {
+      "cache": false
+    },
+
+    "db:deploy": {
+      "cache": false
+    }
   }
 }
