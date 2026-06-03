@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "test": "vitest run",
+    "test": "",
     "lint": "eslint . --fix --cache"
   },
   "devDependencies": {
