@@ -1,0 +1,19 @@
+{
+  "name": "@tooling/env",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./server": "./src/server.ts",
+    "./vite": "./src/vite.ts"
+  },
+  "peerDependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tooling/typescript": "workspace:*",
+    "@types/node": "^24.12.4",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  }
+}
