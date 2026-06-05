@@ -4,7 +4,7 @@
   "type": "module",
   "exports": {
     "./client": "./src/client.ts",
-    "./schemes": "./generated/zod/schemas/index.ts"
+    "./schemas": "./generated/zod/schemas.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",
@@ -23,5 +23,8 @@
     "@prisma/client": "^7.8.0",
     "dotenv": "^17.4.2",
     "pg": "^8.21.0"
+  },
+  "peerDependencies": {
+    "zod": "^4.4.3"
   }
 }
