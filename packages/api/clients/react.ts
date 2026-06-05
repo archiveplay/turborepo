@@ -5,20 +5,117 @@
  * Swagger api description
  * OpenAPI spec version: 1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
 import { customFetch } from "../fetcher";
+export type UserFindUniqueDtoSelect = {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+};
+
+export type UserFindUniqueDtoWhere = {
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  id?: number;
+  email?: string;
+};
+
+export interface UserFindUniqueDto {
+  select?: UserFindUniqueDtoSelect;
+  where: UserFindUniqueDtoWhere;
+}
+
+export type UserFindUniqueResDtoData = {
+  email?: string;
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  id?: number;
+  name?: string;
+};
+
+export interface UserFindUniqueResDto {
+  success: boolean;
+  data?: UserFindUniqueResDtoData;
+  error?: string;
+}
+
+export type UserFindUniqueResDtoOutputData = {
+  email?: string;
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  id?: number;
+  name?: string;
+};
+
+export interface UserFindUniqueResDtoOutput {
+  success: boolean;
+  data?: UserFindUniqueResDtoOutputData;
+  error?: string;
+}
+
 type AwaitedInput<T> = PromiseLike<T> | T;
 
 type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+export type HTTPStatusCode1xx = 100 | 101 | 102 | 103;
+export type HTTPStatusCode2xx = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207;
+export type HTTPStatusCode3xx = 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
+export type HTTPStatusCode4xx =
+  | 400
+  | 401
+  | 402
+  | 403
+  | 404
+  | 405
+  | 406
+  | 407
+  | 408
+  | 409
+  | 410
+  | 411
+  | 412
+  | 413
+  | 414
+  | 415
+  | 416
+  | 417
+  | 418
+  | 419
+  | 420
+  | 421
+  | 422
+  | 423
+  | 424
+  | 426
+  | 428
+  | 429
+  | 431
+  | 451;
+export type HTTPStatusCode5xx = 500 | 501 | 502 | 503 | 504 | 505 | 507 | 511;
+export type HTTPStatusCodes =
+  | HTTPStatusCode1xx
+  | HTTPStatusCode2xx
+  | HTTPStatusCode3xx
+  | HTTPStatusCode4xx
+  | HTTPStatusCode5xx;
 
 export type appControllerGetHelloResponse200 = {
   data: void;
@@ -102,3 +199,109 @@ export function useAppControllerGetHello<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+export type userControllerFindUniqueResponse200 = {
+  data: UserFindUniqueResDto;
+  status: 200;
+};
+
+export type userControllerFindUniqueResponseDefault = {
+  data: UserFindUniqueResDtoOutput;
+  status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type userControllerFindUniqueResponseSuccess =
+  userControllerFindUniqueResponse200 & {
+    headers: Headers;
+  };
+export type userControllerFindUniqueResponseError =
+  userControllerFindUniqueResponseDefault & {
+    headers: Headers;
+  };
+
+export type userControllerFindUniqueResponse =
+  | userControllerFindUniqueResponseSuccess
+  | userControllerFindUniqueResponseError;
+
+export const getUserControllerFindUniqueUrl = () => {
+  return `/user/find-unique`;
+};
+
+export const userControllerFindUnique = async (
+  userFindUniqueDto: UserFindUniqueDto,
+  options?: RequestInit,
+): Promise<userControllerFindUniqueResponse> => {
+  return customFetch<userControllerFindUniqueResponse>(
+    getUserControllerFindUniqueUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(userFindUniqueDto),
+    },
+  );
+};
+
+export const getUserControllerFindUniqueMutationOptions = <
+  TError = UserFindUniqueResDtoOutput,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof userControllerFindUnique>>,
+    TError,
+    { data: UserFindUniqueDto },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof userControllerFindUnique>>,
+  TError,
+  { data: UserFindUniqueDto },
+  TContext
+> => {
+  const mutationKey = ["userControllerFindUnique"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof userControllerFindUnique>>,
+    { data: UserFindUniqueDto }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return userControllerFindUnique(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UserControllerFindUniqueMutationResult = NonNullable<
+  Awaited<ReturnType<typeof userControllerFindUnique>>
+>;
+export type UserControllerFindUniqueMutationBody = UserFindUniqueDto;
+export type UserControllerFindUniqueMutationError = UserFindUniqueResDtoOutput;
+
+export const useUserControllerFindUnique = <
+  TError = UserFindUniqueResDtoOutput,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof userControllerFindUnique>>,
+    TError,
+    { data: UserFindUniqueDto },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof userControllerFindUnique>>,
+  TError,
+  { data: UserFindUniqueDto },
+  TContext
+> => {
+  return useMutation(getUserControllerFindUniqueMutationOptions(options));
+};

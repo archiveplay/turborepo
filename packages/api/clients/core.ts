@@ -6,6 +6,100 @@
  * OpenAPI spec version: 1.0
  */
 import { customFetch } from "../fetcher";
+export type UserFindUniqueDtoSelect = {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+};
+
+export type UserFindUniqueDtoWhere = {
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  id?: number;
+  email?: string;
+};
+
+export interface UserFindUniqueDto {
+  select?: UserFindUniqueDtoSelect;
+  where: UserFindUniqueDtoWhere;
+}
+
+export type UserFindUniqueResDtoData = {
+  email?: string;
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  id?: number;
+  name?: string;
+};
+
+export interface UserFindUniqueResDto {
+  success: boolean;
+  data?: UserFindUniqueResDtoData;
+  error?: string;
+}
+
+export type UserFindUniqueResDtoOutputData = {
+  email?: string;
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  id?: number;
+  name?: string;
+};
+
+export interface UserFindUniqueResDtoOutput {
+  success: boolean;
+  data?: UserFindUniqueResDtoOutputData;
+  error?: string;
+}
+
+export type HTTPStatusCode1xx = 100 | 101 | 102 | 103;
+export type HTTPStatusCode2xx = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207;
+export type HTTPStatusCode3xx = 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
+export type HTTPStatusCode4xx =
+  | 400
+  | 401
+  | 402
+  | 403
+  | 404
+  | 405
+  | 406
+  | 407
+  | 408
+  | 409
+  | 410
+  | 411
+  | 412
+  | 413
+  | 414
+  | 415
+  | 416
+  | 417
+  | 418
+  | 419
+  | 420
+  | 421
+  | 422
+  | 423
+  | 424
+  | 426
+  | 428
+  | 429
+  | 431
+  | 451;
+export type HTTPStatusCode5xx = 500 | 501 | 502 | 503 | 504 | 505 | 507 | 511;
+export type HTTPStatusCodes =
+  | HTTPStatusCode1xx
+  | HTTPStatusCode2xx
+  | HTTPStatusCode3xx
+  | HTTPStatusCode4xx
+  | HTTPStatusCode5xx;
+
 export type appControllerGetHelloResponse200 = {
   data: void;
   status: 200;
@@ -30,6 +124,48 @@ export const appControllerGetHello = async (
     {
       ...options,
       method: "GET",
+    },
+  );
+};
+
+export type userControllerFindUniqueResponse200 = {
+  data: UserFindUniqueResDto;
+  status: 200;
+};
+
+export type userControllerFindUniqueResponseDefault = {
+  data: UserFindUniqueResDtoOutput;
+  status: Exclude<HTTPStatusCodes, 200>;
+};
+
+export type userControllerFindUniqueResponseSuccess =
+  userControllerFindUniqueResponse200 & {
+    headers: Headers;
+  };
+export type userControllerFindUniqueResponseError =
+  userControllerFindUniqueResponseDefault & {
+    headers: Headers;
+  };
+
+export type userControllerFindUniqueResponse =
+  | userControllerFindUniqueResponseSuccess
+  | userControllerFindUniqueResponseError;
+
+export const getUserControllerFindUniqueUrl = () => {
+  return `/user/find-unique`;
+};
+
+export const userControllerFindUnique = async (
+  userFindUniqueDto: UserFindUniqueDto,
+  options?: RequestInit,
+): Promise<userControllerFindUniqueResponse> => {
+  return customFetch<userControllerFindUniqueResponse>(
+    getUserControllerFindUniqueUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(userFindUniqueDto),
     },
   );
 };
