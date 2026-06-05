@@ -35,6 +35,10 @@
 
     "db:deploy": {
       "cache": false
+    },
+
+    "sdk:generate": {
+      "outputs": ["clients/core.ts", "clients/vue.ts", "clients/react.ts"]
     }
   }
 }

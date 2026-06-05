@@ -1,0 +1,28 @@
+{
+  "name": "@pkg/api",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./user": "./contracts/user.ts",
+    "./client/core": "./clients/core.ts",
+    "./client/vue": "./clients/vue.ts",
+    "./client/react": "./clients/react.ts",
+    "./config": "./fetcher.ts"
+  },
+  "scripts": {
+    "sdk:generate": "orval"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.4",
+    "dotenv": "^17.4.2",
+    "orval": "^8.11.0",
+    "ts-node": "^10.9.2"
+  },
+  "peerDependencies": {
+    "@tanstack/vue-query": "^5.100.14",
+    "vue": "^3.5.32"
+  }
+}
