@@ -4,7 +4,7 @@
   "author": "clay.zenx@gmail.com",
   "type": "module",
   "description": "turborepo templates for your next future projects",
-  "packageManager": "pnpm@11.5.1",
+  "packageManager": "pnpm@11.5.2",
   "lint-staged": {
     "*.{js,ts,vue,css,md,json}": "prettier --write"
   },
