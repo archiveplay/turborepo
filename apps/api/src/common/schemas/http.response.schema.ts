@@ -1,8 +1,17 @@
 import { z } from 'zod';
 
 export const HttpResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
-  z.object({
-    success: z.boolean(),
-    data: schema.optional(),
-    error: z.string().optional(),
-  });
+  z.discriminatedUnion('success', [
+    z.object({
+      success: z.literal(true),
+      data: schema,
+    }),
+    z.object({
+      success: z.literal(false),
+      error: z.string(),
+    }),
+  ]);
+
+export type HttpResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
