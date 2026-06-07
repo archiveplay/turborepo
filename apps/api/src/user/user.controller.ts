@@ -6,6 +6,7 @@ import {
   UserFindUniqueReqDto,
   UserFindUniqueResDto,
 } from 'src/common/dto/user.dto';
+import { QueryCacheInterceptor } from 'src/common/interceptors/cache/query.cache.intercetptor';
 
 @Controller('user')
 export class UserController {
@@ -14,6 +15,7 @@ export class UserController {
   @Post('find-unique')
   @ZodResponse({ type: UserFindUniqueResDto })
   @ApiOkResponse({ type: UserFindUniqueResDto })
+  @UseInterceptors(QueryCacheInterceptor)
   findUnique(@Body() dto: UserFindUniqueReqDto) {
     return this.userService.findUnique(dto);
   }

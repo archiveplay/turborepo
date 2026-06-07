@@ -24,6 +24,7 @@
     "@pkg/db": "workspace:*",
     "@pkg/shared": "workspace:*",
     "cacheable": "^2.3.5",
+    "fast-json-stable-stringify": "^2.1.0",
     "nestjs-zod": "^5.4.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

@@ -9,7 +9,7 @@ const cacheStore = {
   provide: CACHE_CLIENT,
   useFactory: async () => {
     const memory = new KeyvCacheableMemory({
-      ttl: env.CACHE_TTL,
+      ttl: 5000,
       lruSize: 5000,
     });
 
@@ -18,6 +18,7 @@ const cacheStore = {
     const cache = new Cacheable({
       primary: memory,
       secondary: redis,
+      ttl: env.CACHE_TTL,
     });
 
     return cache;
