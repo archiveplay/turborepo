@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { UserFindUniqueDto } from 'src/common/dto/user';
-import { prisma } from '@pkg/db/client';
+import { UserFindUniqueReqDto } from 'src/common/dto/user';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-  async findUnique({ where, select }: UserFindUniqueDto) {
-    const user = await prisma.user.findUnique({ where, select });
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async findUnique({ where, select }: UserFindUniqueReqDto) {
+    const user = await this.prismaService.client.user.findUnique({
+      where,
+      select,
+    });
+
     if (!user) {
       return {
         success: false,

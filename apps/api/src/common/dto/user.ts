@@ -11,7 +11,9 @@ const UserFindUniqueZodResultSchema = ResultSchema(
   }).partial(),
 );
 
-export class UserFindUniqueDto extends createZodDto(UserFindUniqueZodSchema) {}
+export class UserFindUniqueReqDto extends createZodDto(
+  UserFindUniqueZodSchema,
+) {}
 export class UserFindUniqueResDto extends createZodDto(
   UserFindUniqueZodResultSchema,
 ) {}
