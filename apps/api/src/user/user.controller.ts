@@ -4,7 +4,6 @@ import { ZodResponse } from 'nestjs-zod';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { UserFindUniqueDto, UserFindUniqueResDto } from 'src/common/dto/user';
 
-UserFindUniqueResDto;
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
