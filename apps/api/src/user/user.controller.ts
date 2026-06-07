@@ -5,7 +5,7 @@ import { ApiOkResponse } from '@nestjs/swagger';
 import {
   UserFindUniqueReqDto,
   UserFindUniqueResDto,
-} from 'src/common/dto/user';
+} from 'src/common/dto/user.dto';
 
 @Controller('user')
 export class UserController {
