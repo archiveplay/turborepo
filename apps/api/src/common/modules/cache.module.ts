@@ -1,25 +1,26 @@
-import KeyvRedis from '@keyv/redis';
 import { Global, Module } from '@nestjs/common';
-
-import { env } from '@tooling/env/server';
+import KeyvRedis from '@keyv/redis';
 import { KeyvCacheableMemory } from 'cacheable';
-import { CACHE_CLIENT } from '../constants/cache.contants';
+import { env } from '@tooling/env/server';
+import { Cacheable } from 'cacheable';
+import { CACHE_CLIENT } from 'src/common/constants/cache.contants';
 
 const cacheStore = {
   provide: CACHE_CLIENT,
-  isGlobal: true,
   useFactory: async () => {
     const memory = new KeyvCacheableMemory({
-      ttl: 10000,
+      ttl: env.CACHE_TTL,
       lruSize: 5000,
     });
 
     const redis = new KeyvRedis(env.REDIS_URL);
 
-    return {
-      stores: [memory, redis],
-      ttl: env.CACHE_TTL,
-    };
+    const cache = new Cacheable({
+      primary: memory,
+      secondary: redis,
+    });
+
+    return cache;
   },
 };
 
