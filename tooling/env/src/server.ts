@@ -9,6 +9,9 @@ export const serverEnvSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
+
+  REDIS_URL: z.string().default("redis://localhost:6379"),
+  CACHE_TTL: z.coerce.number().default(60000),
 });
 
 export const env = serverEnvSchema.parse(process.env);
