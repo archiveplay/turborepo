@@ -1,6 +1,5 @@
 import { createZodDto } from 'nestjs-zod';
-import { UserSchema } from '@pkg/db/schemas';
-import { UserFindUniqueZodSchema } from '@pkg/db/schemas';
+import { UserFindUniqueZodSchema, UserSchema } from '@pkg/db/schemas';
 
 const UserFindUniqueResSchema = UserSchema.pick({
   email: true,

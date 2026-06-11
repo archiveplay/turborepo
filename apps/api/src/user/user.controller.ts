@@ -1,7 +1,6 @@
 import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ZodResponse } from 'nestjs-zod';
-import { ApiOkResponse } from '@nestjs/swagger';
 import {
   UserFindUniqueReqDto,
   UserFindUniqueResDto,
@@ -14,7 +13,6 @@ export class UserController {
 
   @Post('find-unique')
   @ZodResponse({ type: UserFindUniqueResDto })
-  @ApiOkResponse({ type: UserFindUniqueResDto })
   @UseInterceptors(QueryCacheInterceptor)
   findUnique(@Body() dto: UserFindUniqueReqDto) {
     return this.userService.findUnique(dto);
