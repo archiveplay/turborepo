@@ -1,5 +1,5 @@
 {
-  "name": "ui",
+  "name": "web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -17,7 +17,10 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@feature-sliced/cli": "^1.0.0",
     "@pkg/api": "workspace:*",
+    "@tanstack/vue-query": "^5.101.0",
+    "@tooling/env": "workspace:*",
     "pinia": "^3.0.4",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
