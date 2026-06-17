@@ -1,25 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useUserControllerFindUnique } from '@pkg/api/client/vue'
-import { useRoute } from 'vue-router'
+import { useUser } from '@/entities/user/model/use-user'
 
-const route = useRoute()
+const { id } = defineProps<{
+  id: number
+}>()
 
-const { mutate, data, isPending, error } = useUserControllerFindUnique()
-
-onMounted(() => {
-  if (route.params.id)
-    mutate({
-      data: {
-        where: { id: +route.params.id },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-        },
-      },
-    })
-})
+const { data, isPending, error } = useUser(id)
 </script>
 
 <template>
