@@ -8,17 +8,14 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
-  routeRules: {
-    "/": { prerender: true },
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || "/api",
+    },
   },
 
-  nitro: {
-    devProxy: {
-      "/api": {
-        target: process.env.API_SERVER_URL || "http://localhost:4001",
-        changeOrigin: true,
-      },
-    },
+  routeRules: {
+    "/": { prerender: true },
   },
 
   compatibilityDate: "2025-01-15",
