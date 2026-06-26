@@ -3,6 +3,7 @@ packages:
   - packages/*
   - tooling/*
 allowBuilds:
+  '@tailwindcss/oxide': false
   '@nestjs/core': true
   '@parcel/watcher': true
   '@prisma/engines': true

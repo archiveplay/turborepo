@@ -9,10 +9,17 @@ import onlyWarn from "eslint-plugin-only-warn";
  *
  * @type {import("eslint").Linter.Config[]}
  * */
+
 export const config = [
   js.configs.recommended,
   eslintConfigPrettier,
-  ...tseslint.configs.recommended,
+
+  {
+    rules: {
+      ...tseslint.configs.recommended.rules,
+    },
+  },
+
   {
     plugins: {
       turbo: turboPlugin,
@@ -21,11 +28,13 @@ export const config = [
       "turbo/no-undeclared-env-vars": "warn",
     },
   },
+
   {
     plugins: {
       onlyWarn,
     },
   },
+
   {
     ignores: ["dist/**"],
   },
