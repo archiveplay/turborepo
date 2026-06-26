@@ -7,7 +7,7 @@ import { CACHE_CLIENT } from 'src/common/constants/cache.contants';
 
 const cacheStore = {
   provide: CACHE_CLIENT,
-  useFactory: async () => {
+  useFactory: () => {
     const memory = new KeyvCacheableMemory({
       ttl: 5000,
       lruSize: 5000,

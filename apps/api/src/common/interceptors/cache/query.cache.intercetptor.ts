@@ -6,7 +6,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { from, of } from 'rxjs';
+import { from, of, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { CACHE_CLIENT } from 'src/common/constants/cache.contants';
 import { hash } from 'src/common/utils/hash.utils';
@@ -20,53 +20,64 @@ const CACHEABLE_FIELDS = [
   'skip',
 ] as const;
 
+type CacheableField = (typeof CACHEABLE_FIELDS)[number];
+
+type CacheBody = Partial<Record<CacheableField, unknown>>;
+
+interface CacheClient {
+  get<T = unknown>(key: string): Promise<T | null | undefined>;
+  set<T = unknown>(key: string, value: T, ttl?: number): Promise<void>;
+}
+
+interface HttpRequest<TBody = unknown> {
+  body?: TBody;
+  route?: { path?: string };
+  url?: string;
+  originalUrl?: string;
+}
+
 @Injectable()
 export class QueryCacheInterceptor implements NestInterceptor {
   constructor(
     @Inject(CACHE_CLIENT)
-    private readonly cache: {
-      get: (key: string) => Promise<any>;
-      set: (key: string, value: any, ttl?: number) => Promise<any>;
-    },
+    private readonly cache: CacheClient,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler) {
-    const req = context.switchToHttp().getRequest();
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const req = context.switchToHttp().getRequest<HttpRequest<CacheBody>>();
 
     const key = this.buildKey(req);
 
-    return from(this.cache.get(key)).pipe(
+    return from(this.cache.get<unknown>(key)).pipe(
       switchMap((cached) => {
-        if (cached !== undefined && cached !== null) {
+        if (cached != null) {
           return of(cached);
         }
 
         return next.handle().pipe(
-          switchMap(async (result) => {
-            if (result === undefined || result === null) return result;
+          switchMap((result: unknown) => {
+            if (result == null) return of(result);
 
-            await this.cache.set(key, result);
-            return result;
+            return from(this.cache.set(key, result)).pipe(
+              switchMap(() => of(result)),
+            );
           }),
         );
       }),
     );
   }
 
-  private buildKey(req: any): string {
+  private buildKey(req: HttpRequest<CacheBody>): string {
     const normalized = this.normalize(req.body);
 
     const hashed = hash(normalized);
 
-    // route-level isolation is critical
-    const route = req.route?.path || req.url || req.originalUrl || 'unknown';
+    const route = req.route?.path ?? req.url ?? req.originalUrl ?? 'unknown';
 
-    const key = `qcache:${route}:${hashed}`;
-
-    return key;
+    return `qcache:${route}:${hashed}`;
   }
 
-  private normalize(body: any) {
+  private normalize(body?: CacheBody): Record<string, unknown> {
     if (!body) return {};
 
     return Object.fromEntries(
