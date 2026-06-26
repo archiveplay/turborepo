@@ -1,16 +1,12 @@
 import { fileURLToPath, URL } from 'node:url'
-import { ConfigEnv, createLogger, defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-const logger = createLogger('info', { prefix: '[vite.config.ts]' })
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
 
-export const viteConfig = (opt: ConfigEnv) => {
-  const env = loadEnv(opt.mode ?? 'test', process.cwd(), 'VITE_')
-  if (opt.mode !== 'prod')
-    logger.info(`vite started with env ${JSON.stringify(env)}`, { timestamp: true })
-
-  return defineConfig({
+  return {
     plugins: [vue(), vueDevTools()],
     server: {
       proxy: {
@@ -27,6 +23,5 @@ export const viteConfig = (opt: ConfigEnv) => {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
-  })
-}
-export default viteConfig
+  }
+})
