@@ -1,11 +1,13 @@
 import { userControllerFindUnique } from "@pkg/api/client/vue";
 
-export function useUser(id: number) {
+export function useUser(id: MaybeRef<number>) {
+  const userId = toValue(id);
+
   return useQuery({
-    queryKey: ["user", id],
+    queryKey: ["user", userId],
     queryFn: () =>
       userControllerFindUnique({
-        where: { id },
+        where: { id: userId },
         select: { id: true, email: true, name: true },
       }),
   });
