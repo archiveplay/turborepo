@@ -10,8 +10,14 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/": { prerender: true },
-    "/api/**": {
-      proxy: `${process.env.API_SERVER_URL || "http://localhost:4000"}/**`,
+  },
+
+  nitro: {
+    devProxy: {
+      "/api": {
+        target: process.env.API_SERVER_URL || "http://localhost:4000",
+        changeOrigin: true,
+      },
     },
   },
 
