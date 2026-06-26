@@ -13,3 +13,4 @@ allowBuilds:
   prisma-zod-generator: false
   unrs-resolver: true
   vue-demi: true
+  '@hebilicious/vue-query-nuxt': false
