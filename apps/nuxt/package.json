@@ -16,7 +16,6 @@
     "@nuxt/ui": "^4.9.0",
     "@peterbud/nuxt-query": "1.8.0",
     "@pkg/api": "workspace:*",
-    "@tanstack/vue-query": "^5.101.0",
     "nuxt": "^4.4.8",
     "tailwindcss": "^4.3.1"
   },
