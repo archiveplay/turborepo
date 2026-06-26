@@ -1,3 +1,3 @@
-import { userRoute } from '@/pages/user/route'
+import { userRoute } from '@/pages/user/[id]/route'
 
 export const routes = [userRoute]
