@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   nitro: {
     devProxy: {
       "/api": {
-        target: process.env.API_SERVER_URL || "http://localhost:4000",
+        target: process.env.API_SERVER_URL || "http://localhost:4001",
         changeOrigin: true,
       },
     },

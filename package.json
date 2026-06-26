@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "turbo build && pnpm format",
+    "start": "turbo start",
     "dev": "turbo dev",
     "test": "turbo test",
     "lint": "turbo lint",
