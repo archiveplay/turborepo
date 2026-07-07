@@ -12,6 +12,7 @@ export const serverEnvSchema = z.object({
 
   REDIS_URL: z.string().default("redis://localhost:6379"),
   CACHE_TTL: z.coerce.number().default(60000),
+  CORS_ORIGINS: z.string().default("*"),
 });
 
 export const env = serverEnvSchema.parse(process.env);
