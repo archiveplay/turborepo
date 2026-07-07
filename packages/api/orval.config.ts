@@ -8,10 +8,11 @@ const orvalConfigSchema = z.object({
 });
 
 const env = orvalConfigSchema.parse(process.env);
+const input = env.OPENAPI_INPUT_SRC;
 
 export default {
   apiVue: {
-    input: env.OPENAPI_INPUT_SRC,
+    input,
     output: {
       target: "./clients/vue.ts",
       client: "vue-query",
@@ -26,7 +27,7 @@ export default {
   },
 
   apiReact: {
-    input: env.OPENAPI_INPUT_SRC,
+    input,
     output: {
       target: "./clients/react.ts",
       client: "react-query",
@@ -41,7 +42,7 @@ export default {
   },
 
   apiCore: {
-    input: env.OPENAPI_INPUT_SRC,
+    input,
     output: {
       target: "./clients/core.ts",
       client: "fetch",
