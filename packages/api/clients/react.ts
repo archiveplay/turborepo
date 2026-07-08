@@ -5,11 +5,15 @@
  * Swagger api description
  * OpenAPI spec version: 1.0
  */
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   MutationFunction,
+  QueryFunction,
+  QueryKey,
   UseMutationOptions,
   UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
 } from "@tanstack/react-query";
 
 import { customFetch } from "../fetcher";
@@ -48,6 +52,84 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+export type userControllerMeResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type userControllerMeResponseSuccess = userControllerMeResponse200 & {
+  headers: Headers;
+};
+export type userControllerMeResponse = userControllerMeResponseSuccess;
+
+export const getUserControllerMeUrl = () => {
+  return `/user/me`;
+};
+
+export const userControllerMe = async (
+  options?: RequestInit,
+): Promise<userControllerMeResponse> => {
+  return customFetch<userControllerMeResponse>(getUserControllerMeUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getUserControllerMeQueryKey = () => {
+  return [`/user/me`] as const;
+};
+
+export const getUserControllerMeQueryOptions = <
+  TData = Awaited<ReturnType<typeof userControllerMe>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof userControllerMe>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getUserControllerMeQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof userControllerMe>>
+  > = ({ signal }) => userControllerMe({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof userControllerMe>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type UserControllerMeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof userControllerMe>>
+>;
+export type UserControllerMeQueryError = unknown;
+
+export function useUserControllerMe<
+  TData = Awaited<ReturnType<typeof userControllerMe>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof userControllerMe>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getUserControllerMeQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 export type userControllerFindUniqueResponseDefault = {
   data: UserFindUniqueResDtoOutput;
@@ -142,4 +224,94 @@ export const useUserControllerFindUnique = <
   TContext
 > => {
   return useMutation(getUserControllerFindUniqueMutationOptions(options));
+};
+
+export type userControllerTelegramAuthResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type userControllerTelegramAuthResponseSuccess =
+  userControllerTelegramAuthResponse200 & {
+    headers: Headers;
+  };
+export type userControllerTelegramAuthResponse =
+  userControllerTelegramAuthResponseSuccess;
+
+export const getUserControllerTelegramAuthUrl = () => {
+  return `/user/auth/telegram`;
+};
+
+export const userControllerTelegramAuth = async (
+  options?: RequestInit,
+): Promise<userControllerTelegramAuthResponse> => {
+  return customFetch<userControllerTelegramAuthResponse>(
+    getUserControllerTelegramAuthUrl(),
+    {
+      ...options,
+      method: "POST",
+    },
+  );
+};
+
+export const getUserControllerTelegramAuthMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof userControllerTelegramAuth>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof userControllerTelegramAuth>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["userControllerTelegramAuth"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof userControllerTelegramAuth>>,
+    void
+  > = () => {
+    return userControllerTelegramAuth(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UserControllerTelegramAuthMutationResult = NonNullable<
+  Awaited<ReturnType<typeof userControllerTelegramAuth>>
+>;
+
+export type UserControllerTelegramAuthMutationError = unknown;
+
+export const useUserControllerTelegramAuth = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof userControllerTelegramAuth>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof userControllerTelegramAuth>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getUserControllerTelegramAuthMutationOptions(options));
 };

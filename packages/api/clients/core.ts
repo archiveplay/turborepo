@@ -36,6 +36,29 @@ export interface UserFindUniqueResDtoOutput {
   name?: string;
 }
 
+export type userControllerMeResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type userControllerMeResponseSuccess = userControllerMeResponse200 & {
+  headers: Headers;
+};
+export type userControllerMeResponse = userControllerMeResponseSuccess;
+
+export const getUserControllerMeUrl = () => {
+  return `/user/me`;
+};
+
+export const userControllerMe = async (
+  options?: RequestInit,
+): Promise<userControllerMeResponse> => {
+  return customFetch<userControllerMeResponse>(getUserControllerMeUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
 export type userControllerFindUniqueResponseDefault = {
   data: UserFindUniqueResDtoOutput;
   status: number;
@@ -63,6 +86,34 @@ export const userControllerFindUnique = async (
       method: "POST",
       headers: { "Content-Type": "application/json", ...options?.headers },
       body: JSON.stringify(userFindUniqueReqDto),
+    },
+  );
+};
+
+export type userControllerTelegramAuthResponse200 = {
+  data: void;
+  status: 200;
+};
+
+export type userControllerTelegramAuthResponseSuccess =
+  userControllerTelegramAuthResponse200 & {
+    headers: Headers;
+  };
+export type userControllerTelegramAuthResponse =
+  userControllerTelegramAuthResponseSuccess;
+
+export const getUserControllerTelegramAuthUrl = () => {
+  return `/user/auth/telegram`;
+};
+
+export const userControllerTelegramAuth = async (
+  options?: RequestInit,
+): Promise<userControllerTelegramAuthResponse> => {
+  return customFetch<userControllerTelegramAuthResponse>(
+    getUserControllerTelegramAuthUrl(),
+    {
+      ...options,
+      method: "POST",
     },
   );
 };

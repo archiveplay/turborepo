@@ -1,0 +1,16 @@
+{
+  "name": "@pkg/tma",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./client": "./src/client.ts"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@tma.js/sdk-vue": "^1.0.22"
+  },
+  "dependencies": {
+    "@tma.js/sdk": "^3.2.3"
+  }
+}
