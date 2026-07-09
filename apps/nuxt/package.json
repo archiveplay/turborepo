@@ -19,6 +19,7 @@
     "@peterbud/nuxt-query": "1.8.0",
     "@pkg/api": "workspace:*",
     "@pkg/tma": "workspace:*",
+    "@tma.js/sdk-vue": "^1.0.22",
     "nuxt": "^4.4.8",
     "tailwindcss": "^4.3.1"
   },

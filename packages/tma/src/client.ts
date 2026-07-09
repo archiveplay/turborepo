@@ -1,5 +1,4 @@
-import { init, initData } from "@tma.js/sdk";
-import { init as initVue } from "@tma.js/sdk-vue";
+import { init as initVue, initData } from "@tma.js/sdk-vue";
 
 export interface InitDataAuthConfig<T = unknown> {
   /**
@@ -77,4 +76,4 @@ async function initDataAuth<T = unknown>(
   return config.session ? config.session() : result;
 }
 
-export { init, initVue, initDataAuth };
+export { initVue, initDataAuth };

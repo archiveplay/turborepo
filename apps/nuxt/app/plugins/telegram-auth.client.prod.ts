@@ -2,10 +2,25 @@ import {
   userControllerMe,
   userControllerTelegramAuth,
 } from "@pkg/api/client/vue";
-import { initDataAuth, initVue } from "@pkg/tma/client";
+import { initDataAuth } from "@pkg/tma/client";
+import {
+  initData,
+  init,
+  miniApp,
+  themeParams,
+  retrieveLaunchParams,
+} from "@tma.js/sdk-vue";
 
 export default defineNuxtPlugin(async () => {
-  initVue();
+  init();
+
+  initData.restore();
+
+  if (miniApp.mount.isAvailable()) {
+    themeParams.mount();
+    miniApp.mount();
+    themeParams.bindCssVars();
+  }
 
   let userSession;
 
