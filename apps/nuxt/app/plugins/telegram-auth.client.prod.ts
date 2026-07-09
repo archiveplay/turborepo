@@ -4,9 +4,9 @@ import {
 } from "@pkg/api/client/vue";
 import { initDataAuth, initVue } from "@pkg/tma/client";
 
-initVue();
-
 export default defineNuxtPlugin(async () => {
+  initVue();
+
   let userSession;
 
   try {

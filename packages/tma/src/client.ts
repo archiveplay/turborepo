@@ -35,6 +35,7 @@ async function initDataAuth<T = unknown>(
     }
   }
 
+  console.log("initData", initData);
   const raw = initData.raw();
 
   if (!raw) {
