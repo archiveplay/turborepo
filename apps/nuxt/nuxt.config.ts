@@ -2,6 +2,16 @@
 export default defineNuxtConfig({
   modules: ["@nuxt/eslint", "@nuxt/ui", "@peterbud/nuxt-query"],
 
+  ssr: false,
+
+  app: {
+    baseURL: process.env.NUXT_APP_BASE_URL ?? "/",
+  },
+
+  nitro: {
+    preset: "static",
+  },
+
   devtools: {
     enabled: true,
   },
