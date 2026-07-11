@@ -7,10 +7,12 @@ import { env } from '@tooling/env/server';
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
   async authenticateTelegram(initData: string) {
+    console.log('start', initData, env.TELEGRAM_BOT_TOKEN);
     const params = new URLSearchParams(initData);
 
     const hash = params.get('hash');
 
+    console.log('hash', hash);
     if (!hash) {
       throw new UnauthorizedException('Missing hash');
     }
@@ -22,15 +24,25 @@ export class AuthService {
       .map(([key, value]) => `${key}=${value}`)
       .join('\n');
 
+    console.log('dataCheckString ', dataCheckString);
+
     const secretKey = crypto
       .createHmac('sha256', 'WebAppData')
       .update(env.TELEGRAM_BOT_TOKEN!)
       .digest();
 
+    console.log('secretKey', secretKey);
+
     const calculatedHash = crypto
       .createHmac('sha256', secretKey)
       .update(dataCheckString)
       .digest('hex');
+
+    console.log({
+      dataCheckString,
+      hash,
+      calculatedHash,
+    });
 
     if (calculatedHash !== hash) {
       throw new UnauthorizedException('Invalid Telegram signature');

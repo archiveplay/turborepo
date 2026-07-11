@@ -49,6 +49,7 @@ export class UserController {
     @Body() dto: TgInitDataZodDto,
     @Res({ passthrough: true }) response: Response,
   ) {
+    console.log('dto', dto);
     const user = await this.authService.authenticateTelegram(dto.initData);
     const token = await this.authService.createToken(user);
     this.authCookieService.setToken(response, token);
