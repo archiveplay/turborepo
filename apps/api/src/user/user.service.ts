@@ -13,7 +13,17 @@ export class UserService {
   }
 
   async create(data: User) {
-    console.log('create user', data);
-    this.prismaService.client.user.create({ data });
+    try {
+      const user = await this.prismaService.client.user.create({
+        data,
+      });
+
+      console.log('Created:', user);
+
+      return user;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 }
