@@ -13,6 +13,7 @@ export class UserService {
   }
 
   async create(data: User) {
+    console.log('create user', data);
     this.prismaService.client.user.create({ data });
   }
 }

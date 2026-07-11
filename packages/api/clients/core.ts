@@ -36,6 +36,10 @@ export interface UserFindUniqueResDtoOutput {
   name?: string;
 }
 
+export interface TgInitDataZodDto {
+  initData: string;
+}
+
 export type userControllerMeResponse200 = {
   data: void;
   status: 200;
@@ -107,6 +111,7 @@ export const getUserControllerTelegramAuthUrl = () => {
 };
 
 export const userControllerTelegramAuth = async (
+  tgInitDataZodDto: TgInitDataZodDto,
   options?: RequestInit,
 ): Promise<userControllerTelegramAuthResponse> => {
   return customFetch<userControllerTelegramAuthResponse>(
@@ -114,6 +119,8 @@ export const userControllerTelegramAuth = async (
     {
       ...options,
       method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(tgInitDataZodDto),
     },
   );
 };

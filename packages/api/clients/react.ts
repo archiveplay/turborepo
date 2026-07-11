@@ -47,6 +47,10 @@ export interface UserFindUniqueResDtoOutput {
   name?: string;
 }
 
+export interface TgInitDataZodDto {
+  initData: string;
+}
+
 type AwaitedInput<T> = PromiseLike<T> | T;
 
 type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
@@ -243,6 +247,7 @@ export const getUserControllerTelegramAuthUrl = () => {
 };
 
 export const userControllerTelegramAuth = async (
+  tgInitDataZodDto: TgInitDataZodDto,
   options?: RequestInit,
 ): Promise<userControllerTelegramAuthResponse> => {
   return customFetch<userControllerTelegramAuthResponse>(
@@ -250,6 +255,8 @@ export const userControllerTelegramAuth = async (
     {
       ...options,
       method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(tgInitDataZodDto),
     },
   );
 };
@@ -261,14 +268,14 @@ export const getUserControllerTelegramAuthMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof userControllerTelegramAuth>>,
     TError,
-    void,
+    { data: TgInitDataZodDto },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof userControllerTelegramAuth>>,
   TError,
-  void,
+  { data: TgInitDataZodDto },
   TContext
 > => {
   const mutationKey = ["userControllerTelegramAuth"];
@@ -282,9 +289,11 @@ export const getUserControllerTelegramAuthMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof userControllerTelegramAuth>>,
-    void
-  > = () => {
-    return userControllerTelegramAuth(requestOptions);
+    { data: TgInitDataZodDto }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return userControllerTelegramAuth(data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -293,7 +302,7 @@ export const getUserControllerTelegramAuthMutationOptions = <
 export type UserControllerTelegramAuthMutationResult = NonNullable<
   Awaited<ReturnType<typeof userControllerTelegramAuth>>
 >;
-
+export type UserControllerTelegramAuthMutationBody = TgInitDataZodDto;
 export type UserControllerTelegramAuthMutationError = unknown;
 
 export const useUserControllerTelegramAuth = <
@@ -303,14 +312,14 @@ export const useUserControllerTelegramAuth = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof userControllerTelegramAuth>>,
     TError,
-    void,
+    { data: TgInitDataZodDto },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof userControllerTelegramAuth>>,
   TError,
-  void,
+  { data: TgInitDataZodDto },
   TContext
 > => {
   return useMutation(getUserControllerTelegramAuthMutationOptions(options));
