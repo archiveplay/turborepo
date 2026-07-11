@@ -20,6 +20,7 @@ import { AuthService } from 'src/common/modules/auth/auth.service';
 import { Request, Response } from 'express';
 import { AuthCookieService } from 'src/common/modules/auth/auth-cookie.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { TgInitDataZodDto } from 'src/common/dto/tg.dto';
 
 @Controller('user')
 export class UserController {
@@ -45,10 +46,10 @@ export class UserController {
   @Post('auth/telegram')
   @HttpCode(200)
   async telegramAuth(
-    @Body() body: { initData: string },
+    @Body() dto: TgInitDataZodDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const user = await this.authService.authenticateTelegram(body.initData);
+    const user = await this.authService.authenticateTelegram(dto.initData);
     const token = await this.authService.createToken(user);
     this.authCookieService.setToken(response, token);
 

@@ -14,6 +14,7 @@ export const serverEnvSchema = z.object({
   CACHE_TTL: z.coerce.number().default(60000),
   CORS_ORIGINS: z.string().default("*"),
   JWT_SECRET: z.string().default("secret"),
+  TELEGRAM_BOT_TOKEN: z.string(),
 });
 
 export const env = serverEnvSchema.parse(process.env);

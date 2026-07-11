@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { env } from '@tooling/env/server';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
 
     const secretKey = crypto
       .createHmac('sha256', 'WebAppData')
-      .update(process.env.TELEGRAM_BOT_TOKEN!)
+      .update(env.TELEGRAM_BOT_TOKEN!)
       .digest();
 
     const calculatedHash = crypto
