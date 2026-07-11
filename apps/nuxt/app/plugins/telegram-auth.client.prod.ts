@@ -3,13 +3,7 @@ import {
   userControllerTelegramAuth,
 } from "@pkg/api/client/vue";
 import { initDataAuth } from "@pkg/tma/client";
-import {
-  initData,
-  init,
-  miniApp,
-  themeParams,
-  retrieveLaunchParams,
-} from "@tma.js/sdk-vue";
+import { initData, init, miniApp, themeParams } from "@tma.js/sdk-vue";
 
 export default defineNuxtPlugin(async () => {
   init();
@@ -27,9 +21,7 @@ export default defineNuxtPlugin(async () => {
   try {
     userSession = await initDataAuth({
       request: async ({ rawInitData }) =>
-        userControllerTelegramAuth({
-          body: JSON.stringify({ initData: rawInitData }),
-        }),
+        userControllerTelegramAuth({ initData: rawInitData }),
 
       credentials: "include",
 
