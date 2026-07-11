@@ -28,7 +28,9 @@ export default defineNuxtPlugin(async () => {
     userSession = await initDataAuth({
       request: async ({ rawInitData }) =>
         // TODO: typing this shit
-        userControllerTelegramAuth({ initData: rawInitData } as any),
+        userControllerTelegramAuth({
+          body: JSON.stringify({ initData: rawInitData }),
+        }),
 
       credentials: "include",
 
