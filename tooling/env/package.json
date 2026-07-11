@@ -5,7 +5,8 @@
   "private": true,
   "exports": {
     "./server": "./src/server.ts",
-    "./vite": "./src/vite.ts"
+    "./vite": "./src/vite.ts",
+    "./prisma": "./src/prisma.ts"
   },
   "peerDependencies": {
     "zod": "^4.4.3"
