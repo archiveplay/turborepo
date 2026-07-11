@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserFindUniqueReqDto } from 'src/common/dto/user.dto';
+import { User, UserFindUniqueReqDto } from 'src/common/dto/user.dto';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
 
 @Injectable()
@@ -10,5 +10,9 @@ export class UserService {
     const user = await this.prismaService.client.user.findUnique(query);
     if (!user) throw new NotFoundException('User not found');
     return user;
+  }
+
+  async create(data: User) {
+    this.prismaService.client.user.create({ data });
   }
 }

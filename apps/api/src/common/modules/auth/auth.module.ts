@@ -4,6 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../jwt/jwt.strategy.service';
 import { AuthCookieService } from './auth-cookie.service';
+import { env } from '@tooling/env/server';
+import { UserService } from 'src/user/user.service';
 
 const EXPIRES_IN = '7d';
 
@@ -12,13 +14,13 @@ const EXPIRES_IN = '7d';
     PassportModule,
 
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: env.JWT_SECRET,
       signOptions: {
         expiresIn: EXPIRES_IN,
       },
     }),
   ],
-  providers: [AuthService, AuthCookieService, JwtStrategy],
+  providers: [AuthService, AuthCookieService, JwtStrategy, UserService],
   exports: [AuthService, AuthCookieService, JwtStrategy],
 })
 export class AuthModule {}

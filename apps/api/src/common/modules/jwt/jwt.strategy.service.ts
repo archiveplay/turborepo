@@ -3,15 +3,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import type { Request } from 'express';
 import { env } from '@tooling/env/server';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly userService: UserService) {
     const jwtSecret = env.JWT_SECRET;
-
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET is not defined');
-    }
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -22,10 +19,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { id: string; telegramId: number }) {
-    return {
-      id: payload.id,
-      telegramId: payload.telegramId,
-    };
+  validate(payload: { sub: string | number }) {
+    console.log('validation sub', payload.sub);
+    return this.userService.findUnique({ where: { id: +payload.sub } });
   }
 }
