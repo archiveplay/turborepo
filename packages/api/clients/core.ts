@@ -8,8 +8,12 @@
 import { customFetch } from "../fetcher";
 export type UserFindUniqueReqDtoSelect = {
   id?: boolean;
-  email?: boolean;
-  name?: boolean;
+  first_name?: boolean;
+  last_name?: boolean;
+  username?: boolean;
+  language_code?: boolean;
+  allows_write_to_pm?: boolean;
+  photo_url?: boolean;
 };
 
 export type UserFindUniqueReqDtoWhere = {
@@ -18,7 +22,7 @@ export type UserFindUniqueReqDtoWhere = {
    * @maximum 9007199254740991
    */
   id?: number;
-  email?: string;
+  username?: string;
 };
 
 export interface UserFindUniqueReqDto {
@@ -27,13 +31,17 @@ export interface UserFindUniqueReqDto {
 }
 
 export interface UserFindUniqueResDtoOutput {
-  email?: string;
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991
    */
-  id?: number;
-  name?: string;
+  id: number;
+  first_name: string;
+  last_name: string;
+  username: string;
+  photo_url: string;
+  allows_write_to_pm: boolean;
+  language_code: string;
 }
 
 export interface TgInitDataZodDto {
