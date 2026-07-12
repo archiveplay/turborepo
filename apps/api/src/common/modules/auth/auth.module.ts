@@ -6,6 +6,8 @@ import { JwtStrategy } from '../jwt/jwt.strategy.service';
 import { AuthCookieService } from './auth-cookie.service';
 import { env } from '@tooling/env/server';
 import { UserService } from 'src/user/user.service';
+import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
+import { PrismaModule } from '../prisma/prisma.module';
 
 const EXPIRES_IN = '7d';
 
@@ -19,8 +21,10 @@ const EXPIRES_IN = '7d';
         expiresIn: EXPIRES_IN,
       },
     }),
+
+    PrismaModule,
   ],
-  providers: [AuthService, AuthCookieService, JwtStrategy, UserService],
-  exports: [AuthService, AuthCookieService, JwtStrategy],
+  providers: [AuthService, AuthCookieService, JwtStrategy, JwtAuthGuard],
+  exports: [AuthService, AuthCookieService, JwtStrategy, JwtAuthGuard],
 })
 export class AuthModule {}
