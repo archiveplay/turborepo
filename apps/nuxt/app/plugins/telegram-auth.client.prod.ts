@@ -21,11 +21,14 @@ export default defineNuxtPlugin(async () => {
   try {
     userSession = await initDataAuth({
       request: async ({ rawInitData }) =>
-        userControllerTelegramAuth({ initData: rawInitData }),
+        userControllerTelegramAuth(
+          { initData: rawInitData },
+          { credentials: "include" },
+        ),
 
       credentials: "include",
 
-      session: userControllerMe,
+      session: () => userControllerMe({ credentials: "include" }),
     });
 
     console.log("Telegram authentication completed");
