@@ -12,7 +12,7 @@ export class AuthCookieService {
     response.cookie(this.cookieName, token, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
       maxAge: MAX_AGE,
     });
@@ -22,7 +22,7 @@ export class AuthCookieService {
     response.clearCookie(this.cookieName, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
     });
   }
