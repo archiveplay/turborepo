@@ -14,6 +14,10 @@ const UserPublicSchema = UserSchema.pick({
 
 export type User = z.infer<typeof UserPublicSchema>;
 
+export const UserUpdateSchema = UserSchema.omit({
+  id: true,
+});
+
 export class UserFindUniqueReqDto extends createZodDto(
   UserFindUniqueZodSchema,
 ) {}

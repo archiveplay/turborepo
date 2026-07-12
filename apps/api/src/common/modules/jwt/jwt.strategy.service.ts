@@ -19,8 +19,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { sub: string | number }) {
+  validate(payload: { sub: number }) {
     console.log('validation sub', payload.sub);
-    return this.userService.findUnique({ where: { id: +payload.sub } });
+    return this.userService.findUnique({ where: { id: payload.sub } });
   }
 }

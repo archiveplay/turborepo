@@ -1,5 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { User, UserFindUniqueReqDto } from 'src/common/dto/user.dto';
+import {
+  User,
+  UserFindUniqueReqDto,
+  UserUpdateSchema,
+} from 'src/common/dto/user.dto';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
 
 @Injectable()
@@ -14,15 +18,17 @@ export class UserService {
 
   async create(data: User) {
     try {
-      const user = await this.prismaService.client.user.create({
-        data,
+      const user = await this.prismaService.client.user.upsert({
+        where: { id: data.id },
+        create: data,
+        update: UserUpdateSchema.parse(data),
       });
 
       console.log('Created:', user);
 
       return user;
     } catch (e) {
-      console.error(e);
+      console.error('UserService create User error', e);
       throw e;
     }
   }
