@@ -10,7 +10,8 @@ const origin = Array.isArray(CORS_ORIGINS)
 export const setupCors = (app: INestApplication) => {
   app.enableCors({
     origin,
+    credentials: true,
     methods: 'GET,POST,PUT,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: ['Content-Type'],
   });
 };

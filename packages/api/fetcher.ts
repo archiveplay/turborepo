@@ -32,7 +32,14 @@ export async function customFetch<T>(
 ): Promise<T> {
   const url = typeof input === "string" ? `${config.baseUrl}${input}` : input;
 
-  const res = await config.fetch!(url, init);
+  const res = await config.fetch!(url, {
+    credentials: "include",
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  });
 
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
