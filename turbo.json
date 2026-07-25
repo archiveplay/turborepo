@@ -2,15 +2,16 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
 
-  "globalEnv": ["PORT", "DATABASE_URL"],
+  "globalEnv": ["DATABASE_URL"],
 
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build", "^db:generate", "sdk:generate"],
       "outputs": ["dist/**"]
     },
 
     "dev": {
+      "env": ["PORT"],
       "cache": false,
       "persistent": true
     },
@@ -25,19 +26,22 @@
     },
 
     "db:generate": {
+      "env": ["DATABASE_URL"],
       "cache": false
     },
 
     "db:migrate": {
+      "env": ["DATABASE_URL"],
       "cache": false
     },
 
     "db:deploy": {
+      "env": ["DATABASE_URL"],
       "cache": false
     },
 
     "sdk:generate": {
-      "outputs": ["clients/core.ts", "clients/vue.ts", "clients/react.ts"]
+      "outputs": ["clients/**"]
     }
   }
 }
