@@ -54,4 +54,4 @@ RUN adduser --system --uid 1001 nestjs
 USER nestjs
 COPY --from=builder /app .
 
-CMD node apps/api/dist/main.js
+CMD ["node","apps/api/dist/main.js"]
