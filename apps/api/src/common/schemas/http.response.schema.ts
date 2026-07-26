@@ -13,5 +13,4 @@ export const HttpResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
   ]);
 
 export type HttpResponse<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+  { success: true; data: T } | { success: false; error: string };

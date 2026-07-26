@@ -11,4 +11,4 @@ allowBuilds:
   prisma: true
   prisma-zod-generator: false
   unrs-resolver: true
-  vue-demi: set this to true or false
+  vue-demi: false

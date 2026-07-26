@@ -63,7 +63,7 @@ services:
   # Nest API
   # ---------------------------------------------------------------------------
   api:
-    # NOTE: provide .env.docker variables (see .env.example)
+    # NOTE: provide .env variables (see .env.example)
     env_file:
       - ./apps/api/.env
 
