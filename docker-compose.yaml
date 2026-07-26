@@ -57,9 +57,9 @@ services:
   # Nest API
   # ---------------------------------------------------------------------------
   api:
-    # NOTE: provide root .env (see .env.example)
+    # NOTE: provide .env.docker variables (see .env.example)
     env_file:
-      - .env
+      - ./apps/api/.env.docker
 
     build:
       context: .
@@ -69,7 +69,6 @@ services:
       # Build-time variables.
       args:
         DATABASE_URL: ${DATABASE_URL}
-        REDIS_URL: ${REDIS_URL}
 
 
     restart: unless-stopped

@@ -4,7 +4,6 @@ FROM node:${NODE_VERSION}-slim AS base
 # set up ENV
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
-RUN echo "$DATABASE_URL"
 
 RUN npm install -g pnpm@11.5.2
 ENV PNPM_PATH="/root/.local/share/pnpm/bin"
