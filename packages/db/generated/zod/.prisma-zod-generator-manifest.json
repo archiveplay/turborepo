@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "generatorVersion": "1.0.0",
-  "generatedAt": "2026-06-05T19:20:39.230Z",
+  "generatorVersion": "unknown",
+  "generatedAt": "2026-07-26T12:57:28.549Z",
   "outputPath": "/Users/devymurr/Projects/archiveplay/turborepo/packages/db/generated/zod",
   "files": ["schemas.ts"],
   "directories": [],
