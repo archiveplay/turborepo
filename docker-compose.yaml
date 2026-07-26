@@ -6,6 +6,9 @@ services:
   postgres:
     image: postgres:17
 
+    ports:
+      - "5432:5432"
+
     # Automatically restart after reboot or crash.
     restart: unless-stopped
 
