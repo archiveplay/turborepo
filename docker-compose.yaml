@@ -65,7 +65,7 @@ services:
   api:
     # NOTE: provide .env.docker variables (see .env.example)
     env_file:
-      - ./apps/api/.env.docker
+      - ./apps/api/.env
 
     build:
       context: .
