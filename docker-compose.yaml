@@ -1,0 +1,161 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL
+  # ---------------------------------------------------------------------------
+  postgres:
+
+    # Docker Hub image.
+    # The container filesystem starts from this image.
+    image: postgres:17
+
+    # Automatically restart after reboot or crash.
+    # "unless-stopped" means:
+    # - restart after crash
+    # - restart after machine reboot
+    # - BUT don't restart if you manually stopped it.
+    restart: unless-stopped
+
+    environment:
+
+      # Passed as Linux environment variables.
+      # PostgreSQL image reads these ONLY during first initialization.
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+
+    # Named Docker volume.
+    #
+    # Left side:
+    #   Docker managed storage
+    #
+    # Right side:
+    #   Container filesystem
+    #
+    # Even if the container is deleted,
+    # this volume survives.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # Internal network.
+    #
+    # Every service attached to app_network can reach postgres using:
+    #
+    # postgres:5432
+    #
+    networks:
+      - app_network
+
+    # Wait until PostgreSQL accepts connections.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+
+  # ---------------------------------------------------------------------------
+  # Redis
+  # ---------------------------------------------------------------------------
+  redis:
+
+    image: redis:7-alpine
+
+    restart: unless-stopped
+
+    networks:
+      - app_network
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
+
+  # ---------------------------------------------------------------------------
+  # Nest API
+  # ---------------------------------------------------------------------------
+  api:
+
+    build:
+
+      # Build context.
+      #
+      # Docker can only COPY files located inside this directory.
+      context: .
+
+      dockerfile: ./apps/api/Dockerfile
+
+      # Build-time variables.
+      #
+      # Available ONLY while docker build runs.
+      #
+      # They disappear after image creation unless copied into ENV.
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+        REDIS_URL: ${REDIS_URL}
+
+    # Runtime variables.
+    #
+    # Available every time the container starts.
+    #
+    env_file:
+      - .env
+
+    restart: unless-stopped
+
+    # Don't start api until DB and Redis are healthy.
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
+    # Publish container port.
+    #
+    # host:container
+    #
+    # localhost:4000
+    #
+    #        ↓
+    #
+    # container:4000
+    #
+    ports:
+      - "4000:4000"
+
+    networks:
+      - app_network
+
+
+
+# Docker managed persistent storage.
+volumes:
+
+  postgres_data:
+
+
+
+# Docker bridge network.
+#
+# Every service joins this network.
+#
+# api
+#     |
+# postgres
+#     |
+# redis
+#
+# Containers resolve each other by service name.
+#
+# postgres
+# redis
+# api
+#
+networks:
+
+  app_network:
