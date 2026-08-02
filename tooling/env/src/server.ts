@@ -16,3 +16,8 @@ export const serverEnvSchema = z.object({
 });
 
 export const env = serverEnvSchema.parse(process.env);
+
+// NOTE: app-only secrets do NOT belong in the schema above, because
+// `packages/db/prisma.config.ts` imports it and every prisma CLI command would
+// then require them. Add them as `serverEnvSchema.extend({...})` parsed from
+// the app instead 

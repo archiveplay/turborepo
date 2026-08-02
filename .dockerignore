@@ -1,0 +1,41 @@
+# The `prepare` stage does `COPY . .` before `turbo prune`, so anything not
+# excluded here is shipped into the build context (slow) and into image layers.
+
+# Dependencies — reinstalled inside the image
+node_modules
+**/node_modules
+
+# Secrets — provided at runtime by docker compose, must never be baked in
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build outputs & caches — rebuilt inside the image
+dist
+**/dist
+build
+**/build
+.turbo
+**/.turbo
+coverage
+**/coverage
+*.tsbuildinfo
+
+# VCS / editor / OS
+.git
+.gitignore
+.husky
+.vscode
+.idea
+.DS_Store
+
+# Docs & local-only files
+README.md
+AGENTS.md
+docker-compose*.yaml
+Dockerfile*
+**/Dockerfile
+*.log

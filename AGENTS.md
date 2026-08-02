@@ -60,7 +60,16 @@ Each app/package loads env via `@tooling/env/server`. Required vars (see `toolin
 | `CACHE_TTL`    | no       | `60000` (ms)             |
 | `CORS_ORIGINS` | no       | `*`                      |
 
-Place a `.env` file in `packages/db/` for Prisma CLI commands and in `apps/api/` for running the API. See `packages/db/example.env` for the template.
+App-only secrets must **not** go into `serverEnvSchema`: `packages/db/prisma.config.ts` imports it, so prisma CLI commands would start requiring them. Extend it from the app instead (`serverEnvSchema.extend({...})`).
+
+### Where env files live
+
+- **Root `.env`** — the only file `docker compose` reads. Holds the postgres credentials as parts (`POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB`); `docker-compose.yaml` assembles the container `DATABASE_URL` from them with the in-network hostname `postgres`. Also used by root-level prisma/orval commands (which need the `localhost` variant). Required vars use `${VAR:?message}` so `docker compose up` aborts by name when one is missing.
+- **`packages/db/.env`** — prisma CLI on the host.
+- **`apps/api/.env`** — `pnpm dev` on the host.
+- **`packages/api/.env`** — orval / sdk generation.
+
+The per-package files point at `localhost` and are never mounted into containers. When adding a new runtime variable, add it to `serverEnvSchema`, to the `api` service's `environment:` block in `docker-compose.yaml`, and to `.env.example`.
 
 ## Architecture
 

@@ -1,23 +1,57 @@
-services:
+# ---------------------------------------------------------------------------
+# Deployment stack.
+#
+# CONFIGURATION CONTRACT
+#
+# The root `.env` file is the single source of truth (see `.env.example`).
+# Compose auto-loads it and interpolates the `${...}` references below:
+#
+#   ${VAR:?message}  required -> `docker compose up` aborts with `message`
+#   ${VAR:-default}  optional -> falls back to `default`
+#
+# So a missing variable fails immediately, naming itself, before any container
+# starts.
+#
+# The per-package env files (`apps/api/.env`, `packages/db/.env`,
+# `packages/api/.env`) are for HOST tooling only (`pnpm dev`, prisma, orval).
+# They point at `localhost` and are deliberately NOT read by any container:
+# inside the network the hosts are `postgres` and `redis`, not `localhost`.
+# ---------------------------------------------------------------------------
 
+# Credentials are declared once (as parts) and the DSN is assembled here, so
+# the compose file and the database container can never drift apart.
+x-database-url: &database_url postgresql://${POSTGRES_USER:?required in .env}:${POSTGRES_PASSWORD:?required in .env}@postgres:5432/${POSTGRES_DB:?required in .env}
+
+# Shared by `api` and `migrate` so both run the exact same image.
+x-api-image: &api_image
+  image: ${API_IMAGE:-archiveplay-api:latest}
+  build:
+    context: .
+    dockerfile: ./apps/api/Dockerfile
+  networks:
+    - app_network
+
+services:
   # ---------------------------------------------------------------------------
   # PostgreSQL
   # ---------------------------------------------------------------------------
   postgres:
     image: postgres:17
 
+    # Bound to loopback: reachable by host tooling (prisma/psql) but NOT
+    # exposed on the VPS public interface.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
 
     # Automatically restart after reboot or crash.
     restart: unless-stopped
 
     environment:
-      # Passed as Linux environment variables.
       # PostgreSQL image reads these ONLY during first initialization.
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app-db
+      # Changing them later does NOT change an existing volume.
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
     # Named Docker volume.
     # Even if the container is deleted, this volume survives.
@@ -30,12 +64,10 @@ services:
 
     # Wait until PostgreSQL accepts connections.
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
-
-
 
   # ---------------------------------------------------------------------------
   # Redis
@@ -44,7 +76,7 @@ services:
     image: redis:7-alpine
 
     ports:
-      - "6379:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
 
     restart: unless-stopped
 
@@ -57,29 +89,53 @@ services:
       timeout: 3s
       retries: 5
 
+  # ---------------------------------------------------------------------------
+  # Migrations (one-shot)
+  #
+  # Runs `prisma migrate deploy` and exits. The API waits for it to succeed, so
+  # a deploy can never boot against an outdated schema.
+  # ---------------------------------------------------------------------------
+  migrate:
+    <<: *api_image
 
+    working_dir: /app/packages/db
+
+    command: ["node_modules/.bin/prisma", "migrate", "deploy"]
+
+    environment:
+      DATABASE_URL: *database_url
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    # One-shot task: never restart it.
+    restart: "no"
 
   # ---------------------------------------------------------------------------
   # Nest API
   # ---------------------------------------------------------------------------
   api:
-    # NOTE: provide .env variables (see .env.example)
-    env_file:
-      - ./apps/api/.env
+    <<: *api_image
 
-    build:
-      context: .
+    # Runtime configuration is mapped explicitly (no `env_file`) so that:
+    #   - the container gets exactly the variables it needs, nothing else
+    #   - secrets never leak into the postgres/redis containers
+    #   - hostnames are container hostnames, not `localhost`
+    environment:
+      DATABASE_URL: *database_url
+      REDIS_URL: redis://redis:6379
 
-      dockerfile: ./apps/api/Dockerfile
-
-      # Build-time variables.
-      args:
-        DATABASE_URL: ${DATABASE_URL}
-
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-4000}
+      CACHE_TTL: ${CACHE_TTL:-60000}
+      CORS_ORIGINS: ${CORS_ORIGINS:?required in .env (e.g. https://your-domain.tld)}
+      # Add app secrets here as `NAME: ${NAME:?required in .env}` so a missing
+      # one aborts `docker compose up` instead of failing at runtime.
 
     restart: unless-stopped
 
-    # Don't start api until DB and Redis are healthy.
+    # Don't start api until DB and Redis are healthy and migrations applied.
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,18 +143,30 @@ services:
       redis:
         condition: service_healthy
 
-    # Publish container port.
+      migrate:
+        condition: service_completed_successfully
+
+    # Publish container port. With a reverse proxy (caddy/nginx) in front on the
+    # VPS, change this to "127.0.0.1:${API_PORT:-4000}:${PORT:-4000}".
     ports:
-      - "4000:4000"
+      - "${API_PORT:-4000}:${PORT:-4000}"
 
-    networks:
-      - app_network
-
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:'+(process.env.PORT||4000)+'/api-json').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 # Docker managed persistent storage.
 volumes:
   postgres_data:
-
 
 # Docker bridge network.
 #
