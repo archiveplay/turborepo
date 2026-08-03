@@ -165,28 +165,33 @@ services:
       start_period: 20s
 
   # ---------------------------------------------------------------------------
-  # Vue SPA (built by vite, served by nginx)
+  # Nuxt SSR app (Nitro's node-server preset)
   #
-  # This container is also the edge for the browser: it serves the static bundle
-  # AND reverse-proxies "/api" to the api service, so the SPA and the API are
-  # same-origin and no CORS is involved. See apps/web/nginx.conf.template.
+  # Unlike the previous Vue SPA (nginx), Nuxt ships its own Node server, so
+  # this container IS the app server. It's also the edge for the browser: it
+  # serves pages AND reverse-proxies "/api" to the api service, so the app and
+  # the API are same-origin and no CORS is involved. See
+  # apps/nuxt/server/routes/api/[...].ts.
   # ---------------------------------------------------------------------------
-  web:
-    image: ${WEB_IMAGE:-archiveplay-web:latest}
+  nuxt:
+    image: ${NUXT_IMAGE:-archiveplay-nuxt:latest}
 
     build:
       context: .
-      dockerfile: ./apps/web/Dockerfile
-      args:
-        # Vite inlines VITE_* at BUILD time, so this is a build arg and NOT a
-        # runtime `environment:` entry. Empty by default: the bundle talks to
-        # the same origin through the nginx "/api" proxy below.
-        VITE_API_URL: ${VITE_API_URL:-}
+      dockerfile: ./apps/nuxt/Dockerfile
 
     environment:
-      # Consumed by the nginx entrypoint's envsubst, not by the app: keeps the
-      # proxy target pinned to the port the api container actually listens on.
-      API_UPSTREAM: api:${PORT:-4000}
+      # Nuxt's runtimeConfig picks this up at container startup (no rebuild
+      # required, unlike Vite's build-time VITE_* vars) -- keeps the proxy
+      # target pinned to the port the api container actually listens on. See
+      # apps/nuxt/nuxt.config.ts (runtimeConfig.apiUpstream).
+      NUXT_API_UPSTREAM: api:${PORT:-4000}
+
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      # Internal port the Nitro server listens on -- fixed, not host-configurable
+      # (mirrors nginx always listening on a fixed internal 80 for web).
+      PORT: 3000
 
     # Can reach the API using: api:4000
     networks:
@@ -199,58 +204,52 @@ services:
       api:
         condition: service_healthy
 
-    # Bound to loopback: Caddy reaches this over the docker network (web:80),
+    # Bound to loopback: Caddy reaches this over the docker network (nuxt:3000),
     # this publish is only for host-side debugging.
     ports:
-      - "127.0.0.1:${WEB_PORT:-3000}:80"
-
-    # nginx writes its caches/pid at runtime; everything served is baked into
-    # the image, so no named volume is needed for the bundle itself.
-    tmpfs:
-      - /var/cache/nginx
-      - /var/run
+      - "127.0.0.1:${NUXT_PORT:-3000}:3000"
 
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/healthz"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/healthz"]
       interval: 15s
       timeout: 5s
       retries: 5
       start_period: 10s
 
   # ---------------------------------------------------------------------------
-  # Caddy — public edge: terminates TLS for DOMAIN and forwards to `web`.
+  # Caddy — public edge: terminates TLS for DOMAIN and forwards to `nuxt`.
   #
   # This is the ONLY service publicly reachable on 80/443. Certificates are
   # requested from Let's Encrypt automatically (HTTP-01 challenge on :80) and
   # renewed automatically -- DOMAIN must already point at this VPS. See
   # ./Caddyfile.
   # ---------------------------------------------------------------------------
-  caddy:
-    image: caddy:2-alpine
-
-    environment:
-      DOMAIN: ${DOMAIN:?required in .env (e.g. app.your-domain.tld, must already resolve to this VPS)}
-
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # Persisted so certificates survive container recreation -- without
-      # this, every `up --force-recreate` would re-issue certs and could hit
-      # Let's Encrypt's rate limits.
-      - caddy_data:/data
-      - caddy_config:/config
-
-    networks:
-      - app_network
-
-    restart: unless-stopped
-
-    depends_on:
-      web:
-        condition: service_healthy
-
-    ports:
-      - "80:80"
-      - "443:443"
+  # caddy:
+  #   image: caddy:2-alpine
+  #
+  #   environment:
+  #     DOMAIN: ${DOMAIN:?required in .env (e.g. app.your-domain.tld, must already resolve to this VPS)}
+  #
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     # Persisted so certificates survive container recreation -- without
+  #     # this, every `up --force-recreate` would re-issue certs and could hit
+  #     # Let's Encrypt's rate limits.
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #
+  #   networks:
+  #     - app_network
+  #
+  #   restart: unless-stopped
+  #
+  #   depends_on:
+  #     nuxt:
+  #       condition: service_healthy
+  #
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
 
 # Docker managed persistent storage.
 volumes:
@@ -262,18 +261,18 @@ volumes:
 #
 # Every service joins this network.
 #
-#  browser -> caddy (:80/:443, TLS) -> web (nginx :80)
-#                                        |  proxies /api -> api:4000
-#                                       api
-#                                      /   \
-#                               postgres    redis
+#  browser -> caddy (:80/:443, TLS) -> nuxt (Nitro node server :3000)
+#                                         |  proxies /api -> api:4000
+#                                        api
+#                                       /   \
+#                                postgres    redis
 #
 # Containers resolve each other by service name.
 #
 # postgres
 # redis
 # api
-# web
+# nuxt
 # caddy
 #
 networks:

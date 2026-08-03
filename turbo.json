@@ -7,7 +7,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build", "^db:generate", "sdk:generate"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".output/**"]
     },
 
     "dev": {

@@ -18,6 +18,10 @@ dist
 **/dist
 build
 **/build
+.output
+**/.output
+.nuxt
+**/.nuxt
 .turbo
 **/.turbo
 coverage
