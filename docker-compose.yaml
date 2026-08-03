@@ -146,10 +146,10 @@ services:
       migrate:
         condition: service_completed_successfully
 
-    # Publish container port. With a reverse proxy (caddy/nginx) in front on the
-    # VPS, change this to "127.0.0.1:${API_PORT:-4000}:${PORT:-4000}".
+    # Bound to loopback: Caddy reaches this over the docker network (api:PORT),
+    # this publish is only for host-side debugging (curl/psql-style access).
     ports:
-      - "${API_PORT:-4000}:${PORT:-4000}"
+      - "127.0.0.1:${API_PORT:-4000}:${PORT:-4000}"
 
     healthcheck:
       test:
@@ -199,10 +199,10 @@ services:
       api:
         condition: service_healthy
 
-    # With a reverse proxy (caddy/nginx) terminating TLS in front on the VPS,
-    # change this to "127.0.0.1:${WEB_PORT:-3000}:80".
+    # Bound to loopback: Caddy reaches this over the docker network (web:80),
+    # this publish is only for host-side debugging.
     ports:
-      - "${WEB_PORT:-3000}:80"
+      - "127.0.0.1:${WEB_PORT:-3000}:80"
 
     # nginx writes its caches/pid at runtime; everything served is baked into
     # the image, so no named volume is needed for the bundle itself.
@@ -217,19 +217,56 @@ services:
       retries: 5
       start_period: 10s
 
+  # ---------------------------------------------------------------------------
+  # Caddy — public edge: terminates TLS for DOMAIN and forwards to `web`.
+  #
+  # This is the ONLY service publicly reachable on 80/443. Certificates are
+  # requested from Let's Encrypt automatically (HTTP-01 challenge on :80) and
+  # renewed automatically -- DOMAIN must already point at this VPS. See
+  # ./Caddyfile.
+  # ---------------------------------------------------------------------------
+  caddy:
+    image: caddy:2-alpine
+
+    environment:
+      DOMAIN: ${DOMAIN:?required in .env (e.g. app.your-domain.tld, must already resolve to this VPS)}
+
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Persisted so certificates survive container recreation -- without
+      # this, every `up --force-recreate` would re-issue certs and could hit
+      # Let's Encrypt's rate limits.
+      - caddy_data:/data
+      - caddy_config:/config
+
+    networks:
+      - app_network
+
+    restart: unless-stopped
+
+    depends_on:
+      web:
+        condition: service_healthy
+
+    ports:
+      - "80:80"
+      - "443:443"
+
 # Docker managed persistent storage.
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:
 
 # Docker bridge network.
 #
 # Every service joins this network.
 #
-#  browser -> web (nginx :80)
-#               |  proxies /api -> api:4000
-#              api
-#             /   \
-#      postgres    redis
+#  browser -> caddy (:80/:443, TLS) -> web (nginx :80)
+#                                        |  proxies /api -> api:4000
+#                                       api
+#                                      /   \
+#                               postgres    redis
 #
 # Containers resolve each other by service name.
 #
@@ -237,6 +274,7 @@ volumes:
 # redis
 # api
 # web
+# caddy
 #
 networks:
   app_network:

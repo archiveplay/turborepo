@@ -1,0 +1,15 @@
+# ---------------------------------------------------------------------------
+# Caddy terminates TLS for {$DOMAIN} and forwards everything to the `web`
+# container (nginx), which in turn proxies "/api" to the `api` container. So
+# the browser only ever talks to Caddy over HTTPS, on the standard 443 port.
+#
+# Certificates are requested from Let's Encrypt automatically on first
+# request and renewed automatically. DOMAIN must already resolve (A record)
+# to this VPS's public IP before starting, or the ACME challenge will fail.
+# ---------------------------------------------------------------------------
+
+{$DOMAIN} {
+	encode gzip
+
+	reverse_proxy web:80
+}
