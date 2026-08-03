@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# Rendered to /etc/nginx/conf.d/default.conf at container startup:
+# ${API_UPSTREAM} is injected by the nginx entrypoint (see apps/web/Dockerfile)
+# and is set by docker compose to `api:${PORT}`, so it can never drift from the
+# port the API actually listens on.
+#
+# Only ${API_UPSTREAM} is substituted (NGINX_ENVSUBST_FILTER), so nginx runtime
+# variables like $uri or $host below are left untouched.
+# ---------------------------------------------------------------------------
+
+# Allowed here because conf.d/*.conf is included inside nginx's `http` block.
+# Keeps `proxy_set_header Connection` correct for both plain HTTP requests and
+# websocket upgrades.
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+    # Target of the compose healthcheck.
+    location = /healthz {
+        access_log off;
+        add_header Content-Type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Same contract as the Vite dev proxy (apps/web/vite.config.ts):
+    # "/api/*" is forwarded to the API with the "/api" prefix STRIPPED (that is
+    # what the trailing slash on proxy_pass does), so the default baseUrl of
+    # @pkg/api ("/api", see packages/api/fetcher.ts) works unchanged in prod.
+    #
+    # Because the SPA and the API share an origin here, this also means no
+    # browser CORS preflight -- CORS_ORIGINS only matters for other clients.
+    location /api/ {
+        proxy_pass http://${API_UPSTREAM}/;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+
+    # Vite emits content-hashed filenames into /assets, so they can be cached
+    # forever; index.html must NOT be cached or clients would keep booting an
+    # old bundle after a deploy.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+
+    # History fallback for vue-router's createWebHistory: unknown paths must be
+    # served index.html instead of a 404, the router resolves them client-side.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

@@ -164,6 +164,59 @@ services:
       retries: 5
       start_period: 20s
 
+  # ---------------------------------------------------------------------------
+  # Vue SPA (built by vite, served by nginx)
+  #
+  # This container is also the edge for the browser: it serves the static bundle
+  # AND reverse-proxies "/api" to the api service, so the SPA and the API are
+  # same-origin and no CORS is involved. See apps/web/nginx.conf.template.
+  # ---------------------------------------------------------------------------
+  web:
+    image: ${WEB_IMAGE:-archiveplay-web:latest}
+
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        # Vite inlines VITE_* at BUILD time, so this is a build arg and NOT a
+        # runtime `environment:` entry. Empty by default: the bundle talks to
+        # the same origin through the nginx "/api" proxy below.
+        VITE_API_URL: ${VITE_API_URL:-}
+
+    environment:
+      # Consumed by the nginx entrypoint's envsubst, not by the app: keeps the
+      # proxy target pinned to the port the api container actually listens on.
+      API_UPSTREAM: api:${PORT:-4000}
+
+    # Can reach the API using: api:4000
+    networks:
+      - app_network
+
+    restart: unless-stopped
+
+    # The proxy target must exist and answer before we accept browser traffic.
+    depends_on:
+      api:
+        condition: service_healthy
+
+    # With a reverse proxy (caddy/nginx) terminating TLS in front on the VPS,
+    # change this to "127.0.0.1:${WEB_PORT:-3000}:80".
+    ports:
+      - "${WEB_PORT:-3000}:80"
+
+    # nginx writes its caches/pid at runtime; everything served is baked into
+    # the image, so no named volume is needed for the bundle itself.
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 # Docker managed persistent storage.
 volumes:
   postgres_data:
@@ -172,17 +225,18 @@ volumes:
 #
 # Every service joins this network.
 #
-#    api
-#     |
-#  postgres
-#     |
-#   redis
+#  browser -> web (nginx :80)
+#               |  proxies /api -> api:4000
+#              api
+#             /   \
+#      postgres    redis
 #
 # Containers resolve each other by service name.
 #
 # postgres
 # redis
 # api
+# web
 #
 networks:
   app_network:
