@@ -38,31 +38,22 @@ services:
   postgres:
     image: postgres:17
 
-    # Bound to loopback: reachable by host tooling (prisma/psql) but NOT
-    # exposed on the VPS public interface.
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
 
-    # Automatically restart after reboot or crash.
     restart: unless-stopped
 
     environment:
-      # PostgreSQL image reads these ONLY during first initialization.
-      # Changing them later does NOT change an existing volume.
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
 
-    # Named Docker volume.
-    # Even if the container is deleted, this volume survives.
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-    # Can reach postgres using: postgres:5432
     networks:
       - app_network
 
-    # Wait until PostgreSQL accepts connections.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -118,10 +109,6 @@ services:
   api:
     <<: *api_image
 
-    # Runtime configuration is mapped explicitly (no `env_file`) so that:
-    #   - the container gets exactly the variables it needs, nothing else
-    #   - secrets never leak into the postgres/redis containers
-    #   - hostnames are container hostnames, not `localhost`
     environment:
       DATABASE_URL: *database_url
       REDIS_URL: redis://redis:6379
@@ -130,8 +117,6 @@ services:
       PORT: ${PORT:-4000}
       CACHE_TTL: ${CACHE_TTL:-60000}
       CORS_ORIGINS: ${CORS_ORIGINS:?required in .env (e.g. https://your-domain.tld)}
-      # Add app secrets here as `NAME: ${NAME:?required in .env}` so a missing
-      # one aborts `docker compose up` instead of failing at runtime.
 
     restart: unless-stopped
 
