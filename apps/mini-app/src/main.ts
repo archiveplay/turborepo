@@ -13,6 +13,9 @@ import { publicUrl } from "./helperts/publicUrl";
 
 // Mock the environment in case, we are outside Telegram.
 import "./mockEnv";
+import { configureClient } from "@pkg/api/config";
+
+configureClient({ baseUrl: import.meta.env.VITE_API_URL || "http://37.1.222.5:4000/api" })
 
 const launchParams = retrieveLaunchParams();
 const { tgWebAppPlatform: platform } = launchParams;

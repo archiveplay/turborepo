@@ -41,6 +41,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build mini-app
+        env:
+          VITE_API_URL: http://37.1.222.5:4000
         run: pnpm --filter mini-app build
 
       - name: Setup Pages
