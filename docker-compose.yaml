@@ -207,7 +207,7 @@ services:
     # Bound to loopback: Caddy reaches this over the docker network (nuxt:3000),
     # this publish is only for host-side debugging.
     ports:
-      - "127.0.0.1:${NUXT_PORT:-3000}:3000"
+      - "${NUXT_PORT:-3000}:3000"
 
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/healthz"]
