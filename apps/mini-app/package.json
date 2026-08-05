@@ -1,5 +1,5 @@
 {
-  "name": "vuejs-template",
+  "name": "mini-app",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -8,9 +8,8 @@
     "deploy": "gh-pages -d dist",
     "dev": "vite",
     "dev:https": "cross-env HTTPS=true vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "vite build",
     "preview": "vite preview",
-    "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix"
