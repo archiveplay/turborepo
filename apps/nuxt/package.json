@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.114",
-    "@iconify-json/simple-icons": "^1.2.86",
+    "@iconify-json/simple-icons": "^1.2.92",
     "@nuxt/ui": "^4.9.0",
     "@peterbud/nuxt-query": "1.8.0",
     "@pkg/api": "workspace:*",
