@@ -5,6 +5,7 @@ import ThemeParamsPage from '@/pages/ThemeParamsPage.vue';
 import LaunchParamsPage from '@/pages/LaunchParamsPage.vue';
 import TonConnectPage from '@/pages/TonConnectPage.vue';
 import IconTonConnect from '@/components/IconTonConnect.vue';
+import ApiRequestPage from '@/pages/ApiRequestPage.vue';
 
 export const routes = [
   {
@@ -43,6 +44,14 @@ export const routes = [
     meta: {
       icon: IconTonConnect,
       title: 'TON Connect',
+    },
+  },
+  {
+    path: '/api-request',
+    name: 'api-request',
+    component: ApiRequestPage,
+    meta: {
+      title: 'API request check',
     },
   },
 ];

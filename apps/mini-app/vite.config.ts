@@ -1,29 +1,41 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
-import mkcert from 'vite-plugin-mkcert'
+import { defineConfig, loadEnv } from "vite";
+import vue from "@vitejs/plugin-vue";
+import vueDevTools from "vite-plugin-vue-devtools";
+import mkcert from "vite-plugin-mkcert";
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: '/turborepo',
-  plugins: [
-    vue(),
-    vueDevTools(),
-    // Creates a custom SSL certificate valid for the local machine.
-    // Using this plugin requires admin rights on the first dev-mode launch.
-    // https://www.npmjs.com/package/vite-plugin-mkcert
-    process.env.HTTPS ? mkcert() : undefined,
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "VITE_");
+
+  return {
+    base: "/turborepo",
+    plugins: [
+      vue(),
+      vueDevTools(),
+      // Creates a custom SSL certificate valid for the local machine.
+      // Using this plugin requires admin rights on the first dev-mode launch.
+      // https://www.npmjs.com/package/vite-plugin-mkcert
+      process.env.HTTPS ? mkcert() : undefined,
+    ],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
     },
-  },
-  publicDir: './public',
-  server: {
-    // Exposes your dev server and makes it accessible for the devices in the same network.
-    host: true,
-  },
-})
+    publicDir: "./public",
+    server: {
+      // Exposes your dev server and makes it accessible for the devices in the same network.
+      host: true,
+      proxy: {
+        "/api": {
+          target: env.VITE_API_URL ?? "http://localhost:4000/",
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
+    },
+  };
+});
